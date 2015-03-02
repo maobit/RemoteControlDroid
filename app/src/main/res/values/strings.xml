@@ -3,4 +3,17 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_single_fragmnent">SingleFragmnentActivity</string>
+
+    <string name="main_title">遥控Ubuntu</string>
+    <string name="connect_computer">点击连接电脑</string>
+
+    <string name="system_control_button">系统控制</string>
+    <string name="ppt_control_button">PPT控制</string>
+    <string name="filetransfer_button">文件互传</string>
+    <string name="visible_control_button">共享屏幕</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

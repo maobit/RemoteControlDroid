@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.qhe.pcontroldroid.fragments.SystemControlFragment"
+    android:gravity="center"
+    android:background="#FF8400"
+    >
+
+    <Button
+        android:id="@+id/button_lock"
+        style="@style/UniversalButton"
+        android:textSize="30sp"
+        android:layout_marginBottom="20dp"
+        android:text="锁  定"
+        />
+
+    <Button
+        android:id="@+id/button_logout"
+        style="@style/UniversalButton"
+        android:textSize="30sp"
+        android:layout_marginBottom="20dp"
+        android:text="注  销"
+        />
+
+    <Button
+        android:id="@+id/button_standby"
+        style="@style/UniversalButton"
+        android:textSize="30sp"
+        android:layout_marginBottom="20dp"
+        android:text="待  机"
+        />
+
+    <Button
+        android:id="@+id/button_sleep"
+        style="@style/UniversalButton"
+        android:textSize="30sp"
+        android:layout_marginBottom="20dp"
+        android:text="休  眠"
+        />
+
+    <Button
+        android:id="@+id/button_reboot"
+        style="@style/UniversalButton"
+        android:textSize="30sp"
+        android:layout_marginBottom="20dp"
+        android:text="重  启"
+        />
+
+    <Button
+        android:id="@+id/button_shutdown"
+        style="@style/UniversalButton"
+        android:textSize="30sp"
+        android:layout_marginBottom="20dp"
+        android:text="关  机"
+        />
+
+</LinearLayout>
