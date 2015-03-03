@@ -6,6 +6,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.qhe.pcontroldroid.utils.CommandId;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -52,7 +54,7 @@ public class ConnectionManager {
             Log.i("MainFragment", "开始连接");
             mSocket = new Socket(mServerIP, SERVER_PORT);
             os = mSocket.getOutputStream();
-            os.write("1".getBytes());
+            os.write((CommandId.SYSTEM_CONNECT + "").getBytes());
             mConneted = true;
             Log.i("MainFragment", "Server IP: " + mServerIP  + mConneted + "连接成功");
         } catch (IOException e) {

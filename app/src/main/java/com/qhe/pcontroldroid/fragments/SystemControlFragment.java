@@ -1,7 +1,13 @@
 package com.qhe.pcontroldroid.fragments;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +16,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.qhe.pcontroldroid.R;
+import com.qhe.pcontroldroid.models.ConnectionManager;
+import com.qhe.pcontroldroid.utils.CommandId;
+
+import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,6 +47,11 @@ public class SystemControlFragment extends Fragment {
     private Button mSleepButton;
     private Button mRebootButton;
     private Button mShutdownButton;
+
+
+    private int mCommandId;
+    private Socket mSocket;
+    private ConnectionManager mConnectionManager;
 
     /**
      * Use this factory method to create a new instance of
@@ -74,6 +90,8 @@ public class SystemControlFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_system_control, container, false);
 
+        mConnectionManager = ConnectionManager.get(getActivity());
+
         // 实例化按键，设置按键监听器
         ButtonListener buttonListener = new ButtonListener();
 
@@ -101,9 +119,71 @@ public class SystemControlFragment extends Fragment {
     private class ButtonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            // 获取命令
+            switch (v.getId()) {
+                case R.id.button_lock:
+                    mCommandId = CommandId.SYSTEM_LOCK;
+                    break;
+                case R.id.button_logout:
+                    mCommandId = CommandId.SYSTEM_LOGOUT;
+                    break;
+                case R.id.button_reboot:
+                    mCommandId = CommandId.SYSTEM_REBOOT;
+                    break;
+                case R.id.button_sleep:
+                    mCommandId = CommandId.SYSTEM_SLEEP;
+                    break;
+                case R.id.button_standby:
+                    mCommandId = CommandId.SYSTEM_STANDBY;
+                    break;
+                case R.id.button_shutdown:
+                    mCommandId = CommandId.SYSTEM_SHUTDWON;
+                    break;
+                default:
+                    break;
+            }
 
+            // 执行命令
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(CommandId.COMMAND_ARRAY[mCommandId]);
+            builder.setMessage("确定执行 " + CommandId.COMMAND_ARRAY[mCommandId]);
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    new SendCommandTask().execute(mCommandId + "");
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            builder.create().show();
         }
     }
 
+    private class SendCommandTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            OutputStream os = null;
+            try {
+                mSocket = new Socket(mConnectionManager.getServerIP(), 2016);
+                os = mSocket.getOutputStream();
+                os.write(params[0].getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if(os != null)
+                        os.close();
+                    if(mSocket != null)
+                        mSocket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
+            return null;
+        }
+    }
 }
