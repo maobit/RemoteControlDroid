@@ -28,12 +28,13 @@
             android:label="系统控制"
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
-            android:name=".activities.TestActivity"
-            android:label="@string/title_activity_test" >
-        </activity>
-        <activity
             android:name=".activities.FileTransferActivity"
             android:label="@string/title_activity_file_transfer" >
+        </activity>
+        <activity
+            android:name=".activities.ShareScreenActivity"
+            android:screenOrientation="landscape"
+            android:label="@string/title_activity_share_screen" >
         </activity>
     </application>
 

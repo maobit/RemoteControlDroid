@@ -12,10 +12,10 @@ import com.qhe.pcontroldroid.fragments.MainFragment;
 public class FileTransferActivity extends SingleFragmentActivity {
     private String mRequestDir;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("文件传输");
     }
 
     @Override

@@ -51,6 +51,9 @@ public class FileTransferFragment extends ListFragment {
     private FragmentManager mFragmentManager;
     private RemoteFileAdapter adapter;
 
+    private View mProgressBarContainer;
+    private TextView mLoadingTextView;
+
 
     public static FileTransferFragment newInstance(String requestDir) {
         Bundle args = new Bundle();
@@ -64,11 +67,7 @@ public class FileTransferFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getActivity().setTitle("文件传输");
-
         mRequestDir = getArguments().getString(EXTRA_REQUEST_DIR);
-//        Toast.makeText(getActivity(), "Dir: " + mRequestDir, Toast.LENGTH_SHORT).show();
-
 
         mFiles = new ArrayList<RemoteFile>();
         // get remote file list
@@ -82,6 +81,10 @@ public class FileTransferFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_file_transfer, container, false);
+
+        mProgressBarContainer = view.findViewById(R.id.progressbarContainer);
+        mLoadingTextView = (TextView) view.findViewById(R.id.tvMessage);
+
         ListView listView = (ListView) view.findViewById(android.R.id.list);
 
         return view;
@@ -234,6 +237,11 @@ public class FileTransferFragment extends ListFragment {
                 mFiles.add((RemoteFile)remoteFileObj[i]);
             }
 
+            if(mFiles.size() == 0) {
+                mProgressBarContainer.setVisibility(View.INVISIBLE);
+                mLoadingTextView.setText("Empty folder");
+            }
+
             adapter.notifyDataSetChanged();
         }
     }
@@ -279,7 +287,7 @@ public class FileTransferFragment extends ListFragment {
                         count += length;
                         fos.write(buffer, 0, length);
                         fos.flush();
-                        publishProgress((int) ((count / (float)fileSize) * 100));
+                        publishProgress((int) ((count / (float) fileSize) * 100));
                     }
                 }
 
@@ -312,8 +320,9 @@ public class FileTransferFragment extends ListFragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(mProgressDialog != null)
+            if(mProgressDialog != null) {
                 mProgressDialog.cancel();
+            }
         }
     }
 }

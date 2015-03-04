@@ -17,5 +17,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_file_transfer">FileTransferActivity</string>
+    <string name="title_activity_share_screen">ShareScreenActivity</string>
 
 </resources>

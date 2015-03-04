@@ -11,7 +11,7 @@ public class CommandId {
 	public static final int SYSTEM_SHUTDWON = 7;
 
     public static final String[] COMMAND_ARRAY = {"", "", "锁定", "注销", "待机", "休眠", "重启", "关机" };
-	
-	// 定义文件传输使用的命令
-	public static final int FILE_CONNECT = 8;  // 选中文件传输的按钮，发送命令给服务器程序
+
+    // 共享屏幕，截图传输图片
+    public static final int SHARE_SCREEN = 9;
 }
