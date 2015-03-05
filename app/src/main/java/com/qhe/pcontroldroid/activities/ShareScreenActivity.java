@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,8 +14,6 @@ import com.qhe.pcontroldroid.models.ConnectionManager;
 import com.qhe.pcontroldroid.utils.CommandId;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
@@ -27,11 +24,13 @@ public class ShareScreenActivity extends ActionBarActivity {
     private Bitmap mBitmap;
 
     private static final String TAG = "ShareScreenActivity";
+    private FetchScreenShotsTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_screen);
 
@@ -42,11 +41,19 @@ public class ShareScreenActivity extends ActionBarActivity {
 
         mImageView = (ImageView) findViewById(R.id.image_screen);
 
-        new FetchScreenShotsTask().execute();
+        task = new FetchScreenShotsTask();
+        task.execute();
+
 //        mImageView.setImageBitmap(mBitmap);
     }
 
-    private class FetchScreenShotsTask extends AsyncTask<Void, Void, Void> {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        task.cancel(true);
+    }
+
+    private class FetchScreenShotsTask extends AsyncTask<Void, Bitmap, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -57,54 +64,93 @@ public class ShareScreenActivity extends ActionBarActivity {
         protected Void doInBackground(Void... params) {
             OutputStream out;
             InputStream in;
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteArrayOutputStream baos;
             ObjectInputStream inputStream;
-            try {
-                Socket socket = new Socket(ConnectionManager.get(ShareScreenActivity.this).getServerIP(), 2016);
-                out = socket.getOutputStream();
-                out.write((CommandId.SHARE_SCREEN + "").getBytes());
+            while(true) {
+                try {
+                    Socket socket = new Socket(ConnectionManager.get(ShareScreenActivity.this).getServerIP(), 2016);
+                    out = socket.getOutputStream();
+                    out.write((CommandId.SHARE_SCREEN + "").getBytes());
 
-                in = socket.getInputStream();
+                    in = socket.getInputStream();
 
-                byte[] buffer = new byte[1024];
-                int length = -1;
-                while((length = in.read(buffer)) > 0) {
-                    baos.write(buffer, 0, length);
+                    //                byte[] picLen = new byte[8];
+                    //                in.read(picLen, 0, picLen.length);
+                    //                int msgSize = Integer.parseInt(new String(picLen, 0, picLen.length));
+                    //                Log.e(TAG, "Size: " + msgSize);
+                    //                byte[] buffer = new byte[msgSize];
+                    //                int length = 0;
+                    //                while(length < msgSize) {
+                    //                    int readSize = in.read(buffer, length, msgSize - length);
+                    //                    if(readSize > 0) {
+                    //                         length += readSize;
+                    //                    } else {
+                    //                        break;
+                    //                    }
+                    //                 }
+
+                    baos = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int length = -1;
+                    while ((length = in.read(buffer)) > 0) {
+                        baos.write(buffer, 0, length);
+                        baos.flush();
+                    }
                     baos.flush();
-                }
-                baos.flush();
-//                DataInputStream reader = new DataInputStream(in);
-//                int msgSymbol = reader.read();
-//                if(msgSymbol == -1) {
-//                    int msgSize = reader.readInt();
-//                    byte[] buffer = new byte[1024];
-//                    int length = -1;
-//                    while((length = reader.read(buffer)) > 0) {
-//                        baos.write(buffer, 0, length);
-//                        baos.flush();
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
 //                    }
-//                    baos.flush();
-//                }
 
-                byte[] bytes = baos.toByteArray();
+                    //                DataInputStream reader = new DataInputStream(in);
+                    //                int msgSymbol = reader.readInt();
+                    //                if(msgSymbol == -1) {
+                    //                    int msgSize = reader.readInt();
+                    //                    byte[] buffer = new byte[msgSize];
+                    //                    int length = 0;
+                    //                    while(length < msgSize) {
+                    //                        int readSize = reader.read(buffer, length, msgSize - length);
+                    //                        if(readSize > 0) {
+                    //                            length += readSize;
+                    //                        } else {
+                    //                            break;
+                    //                        }
+                    //                    }
+                    //                    ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
+                    //                    ZipInputStream zis = new ZipInputStream(bis);
+                    //                    ZipEntry ze = zis.getNextEntry();
+                    //                    byte[] temp = new byte[1024];
+                    //
+                    //                    length = 0;
+                    //                    while((length = zis.read(temp, 0, 1024)) > 0) {
+                    //                        baos.write(temp, 0, length);
+                    //                    }
+                    //                    baos.flush();
+                    //                }
 
-                mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    byte[] bytes = baos.toByteArray();
+                    //                byte[] bytes = buffer;
 
-                File pic = new File(Environment.getExternalStorageDirectory() + "/PControlDroid/test.jpg");
-                FileOutputStream fos = new FileOutputStream(pic);
-                fos.write(bytes);
-                fos.close();
+                    mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                    publishProgress(mBitmap);
+
+//                    File pic = new File(Environment.getExternalStorageDirectory() + "/PControlDroid/test.jpg");
+//                    FileOutputStream fos = new FileOutputStream(pic);
+//                    fos.write(bytes);
+//                    fos.close();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
-            return null;
         }
 
         @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
+        protected void onProgressUpdate(Bitmap... values) {
+            mImageView.setImageBitmap(values[0]);
         }
 
         @Override
